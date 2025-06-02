@@ -3,88 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lecciones de Jóvenes Bíblicos: Exploración Interactiva (Mejorada)</title>
+    <title>Jóvenes Bíblicos: Una Experiencia Narrativa Interactiva</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto+Slab:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #FFFBEB; /* amber-50 */ }
-        h1, h2, h3 { font-family: 'Lora', serif; }
-        .chart-container { position: relative; width: 100%; max-width: 700px; margin-left: auto; margin-right: auto; height: 400px; max-height: 500px; }
-        @media (min-width: 768px) { .chart-container { height: 500px; } }
-        
-        .nav-button {
-            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+        body { 
+            font-family: 'Open Sans', sans-serif; 
+            background-color: #F5F5F4; /* stone-100 */
+            color: #3D3A37; /* Darker stone for text */
         }
-        .nav-button:hover {
+        .main-title { font-family: 'Playfair Display', serif; }
+        .section-title { font-family: 'Roboto Slab', serif; }
+        .character-card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #E7E5E4; /* stone-200 */
+        }
+        .character-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        }
+        .character-card.active-card {
             transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            box-shadow: 0 0 0 4px var(--active-color, #A16207), 0 10px 15px -3px rgba(0,0,0,0.1);
+            border-color: var(--active-color, #A16207);
         }
-        .nav-button.active-char {
-            box-shadow: 0 0 0 3px #D97706; /* amber-600 */
-            transform: translateY(-2px);
+        .character-icon {
+            font-size: 4rem;
+            line-height: 1;
+            margin-bottom: 1rem;
+            display: inline-block;
         }
-
+        .details-section {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.05);
+            transition: background-color 0.5s ease;
+        }
         .tab-button {
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            font-family: 'Roboto Slab', serif;
+            font-weight: 700;
+            font-size: 0.95rem;
             color: #78716C; /* stone-500 */
             border-bottom: 3px solid transparent;
-            transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            transition: color 0.3s ease, border-color 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         .tab-button:hover {
-            color: #B45309; /* amber-700 */
+            color: var(--active-color, #A16207);
         }
         .tab-button.active {
-            color: #D97706; /* amber-600 */
-            border-color: #D97706; /* amber-600 */
+            color: var(--active-color, #A16207);
+            border-color: var(--active-color, #A16207);
         }
-        .content-fade-in { animation: contentFadeIn 0.5s ease-in-out; }
-        @keyframes contentFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .content-fade-in { animation: contentFadeIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        @keyframes contentFadeIn { 
+            0% { opacity: 0; transform: translateY(20px); } 
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .chart-container-wrapper {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 1.5rem; /* Reduced padding for wrapper */
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 650px; /* Slightly smaller max-width */
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 380px; /* Adjusted height */
+            max-height: 480px; 
+        }
+         @media (min-width: 768px) { .chart-container { height: 480px; } }
+
+        /* Character specific theme colors */
+        .theme-cain { --active-color: #EF4444; --bg-color: #FEF2F2; } /* red-500, red-50 */
+        .theme-abel { --active-color: #3B82F6; --bg-color: #EFF6FF; } /* blue-500, blue-50 */
+        .theme-hijos_noe { --active-color: #6366F1; --bg-color: #EEF2FF; } /* indigo-500, indigo-50 */
+        .theme-ismael { --active-color: #F59E0B; --bg-color: #FFFBEB; } /* amber-500, amber-50 */
+        .theme-isaac { --active-color: #10B981; --bg-color: #F0FDF4; } /* emerald-500, green-50 */
     </style>
 </head>
-<body class="text-stone-700 antialiased">
+<body class="antialiased">
 
-    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="container mx-auto px-4 py-8 md:py-12">
 
-        <header class="text-center my-12 md:my-16">
-            <h1 class="text-5xl md:text-6xl font-bold text-amber-800 mb-3">Juventud en el Crisol</h1>
-            <p class="text-xl text-stone-600">Lecciones de Fe, Adversidad y Superación en las Narrativas Bíblicas</p>
+        <header class="text-center mb-12 md:mb-16">
+            <h1 class="main-title text-5xl md:text-6xl text-amber-700 mb-4">Jóvenes en el Crisol</h1>
+            <p class="text-xl text-stone-600 max-w-3xl mx-auto">Un viaje interactivo por las vidas, desafíos y triunfos de fe de figuras bíblicas juveniles.</p>
         </header>
 
-        <section id="introduction" class="mb-12 md:mb-16">
-            <p class="text-center max-w-3xl mx-auto text-lg text-stone-700 leading-relaxed">
-                Esta aplicación interactiva te invita a explorar las vidas de figuras jóvenes de la Biblia. Sus historias, llenas de desafíos, decisiones cruciales y encuentros con Dios, ofrecen una fuente de sabiduría atemporal. Selecciona un personaje para descubrir su viaje y las lecciones que su vida nos enseña sobre cómo enfrentar la adversidad y crecer en fe.
+        <section id="character-selector" class="mb-10 md:mb-12">
+            <h2 class="section-title text-3xl text-center text-amber-700 mb-10">Explora sus Historias</h2>
+            <div id="character-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 md:gap-8">
+                </div>
+        </section>
+
+        <section id="character-details-section" class="details-section hidden">
+            </section>
+
+        <section id="comparison-chart-section" class="mt-12 md:mt-16">
+            <h2 class="section-title text-3xl text-center text-amber-700 mb-4">Análisis Comparativo de Virtudes</h2>
+            <p class="text-center text-stone-600 max-w-3xl mx-auto mb-10">
+                Visualiza y compara las cualidades clave de estos jóvenes. Cada eje representa un aspecto fundamental de su carácter y experiencia, puntuado para ofrecer una perspectiva comparativa de sus trayectorias.
             </p>
-        </section>
-
-        <section id="character-selection" class="mb-12 md:mb-16">
-            <h2 class="text-3xl font-bold text-center text-amber-800 mb-10">Selecciona un Personaje</h2>
-            <div id="character-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 text-center">
-            </div>
-        </section>
-
-        <section id="character-details-container" class="bg-white rounded-xl shadow-xl p-6 md:p-10 mb-12 md:mb-16 hidden min-h-[400px]">
-             <div id="character-details"></div>
-        </section>
-
-        <section id="comparison-chart" class="mb-12 md:mb-16">
-            <h2 class="text-3xl font-bold text-center text-amber-800 mb-4">Análisis Comparativo</h2>
-             <p class="text-center max-w-3xl mx-auto text-lg text-stone-700 mb-10 leading-relaxed">
-                Este gráfico compara a los jóvenes en cinco áreas clave extraídas de sus historias. Permite visualizar rápidamente sus fortalezas y debilidades relativas, ofreciendo una perspectiva única de sus trayectorias. La "Fe" mide su confianza en Dios, la "Resiliencia" su capacidad de sobreponerse, el "Impacto" las consecuencias de sus actos, la "Responsabilidad" su madurez moral, y la "Obediencia" su sumisión al plan divino.
-            </p>
-            <div class="bg-white rounded-xl shadow-xl p-4 sm:p-6">
+            <div class="chart-container-wrapper">
                 <div class="chart-container">
                     <canvas id="radarChart"></canvas>
                 </div>
             </div>
         </section>
         
-        <footer class="text-center text-stone-500 text-sm mt-16 py-8 border-t border-stone-200">
-            <p>Creado a partir del informe "Juventud en el Crisol". Nueva Versión Internacional (NVI).</p>
-            <p>&copy; 2024 Exploración Bíblica Interactiva. Todos los derechos reservados.</p>
+        <footer class="text-center text-stone-500 text-sm mt-16 py-10 border-t border-stone-300">
+            <p>Contenido inspirado en el informe "Juventud en el Crisol" (Nueva Versión Internacional).</p>
+            <p>&copy; 2024 Exploraciones Bíblicas Interactivas. Diseñado con propósito.</p>
         </footer>
     </div>
 
@@ -93,112 +138,121 @@
             cain: {
                 name: "Caín",
                 icon: "🌾",
-                title: "El Desafío de la Ira y la Envidia",
-                color: "bg-red-100",
-                textColor: "text-red-800",
+                title: "La Sombra de la Envidia",
+                theme: "theme-cain",
+                colorHex: "#EF4444",
                 tabs: {
-                    historia: "Caín, el primer hijo de Adán y Eva, fue un agricultor. Él y su hermano Abel presentaron ofrendas a Dios. La ofrenda de Abel fue aceptada, pero la de Caín no, lo que desató en él una ira profunda y una envidia que no supo controlar.",
-                    desafio: "Su principal desafío fue interno: gestionar el sentimiento de rechazo y la amarga envidia hacia su hermano. Dios mismo le advirtió que podía dominar el pecado que lo acechaba, pero Caín no escuchó. La adversidad fue una prueba de su carácter y de su relación con Dios.",
-                    respuesta: "En lugar de reflexionar y corregir su actitud, Caín cedió a su ira y asesinó a Abel. Su respuesta fue un fracaso total en la superación de su crisis, lo que resultó en una maldición, el exilio y una vida marcada por su crimen.",
-                    lecciones: "1. La adoración verdadera nace de un corazón sincero. 2. La envidia y la ira sin control son destructivas. 3. Somos responsables de nuestras elecciones ante la tentación. 4. Las malas decisiones tienen consecuencias duraderas y graves."
+                    historia: "Primogénito de Adán y Eva, Caín, el labrador, vio su ofrenda rechazada por Dios, mientras la de su hermano Abel era aceptada. Este evento encendió en él una ira y envidia que no logró dominar, marcando el inicio de una trágica espiral.",
+                    desafio: "El desafío de Caín fue eminentemente interno: la gestión de sus emociones ante el rechazo percibido y la comparación con su hermano. Dios le advirtió sobre el pecado acechante, ofreciéndole la posibilidad de señorío sobre él, una prueba crucial de su carácter.",
+                    respuesta: "Desoyendo la advertencia divina, Caín sucumbió a sus pasiones oscuras, asesinando a Abel. Su respuesta fue la evasión y la negación ante Dios, culminando en una maldición que lo condenó al exilio y a una vida errante.",
+                    lecciones: "1. La adoración auténtica brota de un corazón recto. 2. La envidia y la ira no confrontadas son semillas de destrucción. 3. Cada individuo es responsable de sus elecciones morales ante la tentación. 4. Las acciones tienen consecuencias profundas y perdurables."
                 },
                 scores: [2, 1, 8, 1, 1] 
             },
             abel: {
                 name: "Abel",
                 icon: "🐑",
-                title: "El Costo de una Fe Genuina",
-                color: "bg-sky-100",
-                textColor: "text-sky-800",
+                title: "Fe Inocente, Sacrificio Inmerecido",
+                theme: "theme-abel",
+                colorHex: "#3B82F6",
                 tabs: {
-                    historia: "Abel, segundo hijo de Adán y Eva, fue pastor de ovejas. Presentó a Dios una ofrenda de lo mejor de su rebaño, la cual fue aceptada con agrado. Su acto de fe sincera lo destacó, pero también lo convirtió en el blanco de la envidia de su hermano.",
-                    desafio: "La adversidad de Abel no fue una prueba moral, sino la consecuencia de la maldad de otro. Su desafío fue la injusticia de ser perseguido por hacer lo correcto. Su vida fue truncada prematuramente por la violencia nacida de la envidia.",
-                    respuesta: "La respuesta de Abel fue una fe manifestada en su ofrenda. Aunque fue asesinado, su ejemplo de adoración genuina trasciende su muerte. El libro de Hebreos dice que 'por la fe Abel, aunque muerto, habla todavía'. No 'superó' la muerte física, pero su legado espiritual es de victoria.",
-                    lecciones: "1. La sinceridad y la excelencia en la adoración agradan a Dios. 2. La justicia no siempre prevalece en la tierra, pero Dios es el juez final. 3. Una vida de fe puede provocar hostilidad en un mundo caído. 4. Un legado de fe es más duradero que una larga vida."
+                    historia: "Segundo hijo de Adán y Eva, Abel, el pastor, ofreció a Dios lo mejor de su rebaño. Su ofrenda, presentada con fe sincera, fue aceptada, lo que paradójicamente selló su destino al despertar la envidia mortal de Caín.",
+                    desafio: "Abel no enfrentó una prueba moral personal, sino la injusticia de la violencia fratricida. Su fe lo hizo justo ante Dios, pero también vulnerable a la maldad humana en un mundo ya fracturado por el pecado.",
+                    respuesta: "La respuesta de Abel fue su vida de fe, manifestada en su ofrenda. Aunque su vida fue truncada, su testimonio de fe genuina perdura, como afirma Hebreos: 'por la fe Abel, aunque muerto, todavía habla'. Su legado trasciende su muerte física.",
+                    lecciones: "1. La sinceridad en la fe y la excelencia en la ofrenda agradan a Dios. 2. La justicia terrenal es falible; la justicia divina es última. 3. Vivir con fe puede generar hostilidad en un mundo caído. 4. Un legado de fe es más valioso que una larga vida."
                 },
                 scores: [9, 3, 7, 9, 9] 
             },
             hijos_noe: {
                 name: "Hijos de Noé",
                 icon: "🌊",
-                title: "El Respeto y el Impacto Generacional",
-                color: "bg-indigo-100",
-                textColor: "text-indigo-800",
+                title: "Honor y Legado en un Mundo Renacido",
+                theme: "theme-hijos_noe",
+                colorHex: "#6366F1",
                 tabs: {
-                    historia: "Sem, Cam y Jafet sobrevivieron al Diluvio junto a Noé. Un día, Noé se embriagó y quedó desnudo en su tienda. Cam vio a su padre y, en lugar de cubrirlo, se lo contó a sus hermanos de forma irrespetuosa. Sem y Jafet, en cambio, actuaron con honor.",
-                    desafio: "La prueba fue cómo reaccionar ante la debilidad y vulnerabilidad de una figura de autoridad, su propio padre. Fue una crisis moral familiar que revelaría el carácter de cada uno de los hijos y su comprensión del honor.",
-                    respuesta: "Sem y Jafet superaron la prueba al cubrir respetuosamente a su padre, caminando de espaldas para no ver su desnudez, lo que les valió una bendición. Cam falló, mostrando deshonra, lo que resultó en una maldición sobre su descendencia (Canaán).",
-                    lecciones: "1. Honrar a los padres es un principio fundamental, incluso en sus fallas. 2. Las acciones de los jóvenes pueden tener consecuencias que afectan a futuras generaciones. 3. El respeto protege la dignidad familiar y atrae bendición."
+                    historia: "Sem, Cam y Jafet, sobrevivientes del Diluvio, enfrentaron una prueba de carácter cuando su padre Noé se embriagó y quedó expuesto. La reacción de cada uno ante la vulnerabilidad paterna definiría sus destinos y los de su descendencia.",
+                    desafio: "La prueba consistió en cómo responder a la falla de una figura de autoridad. Cam optó por la deshonra, mientras Sem y Jafet eligieron el respeto y la discreción, cubriendo a su padre.",
+                    respuesta: "Sem y Jafet actuaron con honor, recibiendo bendiciones. Cam, por su irreverencia, atrajo una maldición sobre su hijo Canaán, ilustrando cómo las acciones de una generación impactan a las siguientes.",
+                    lecciones: "1. El honor a los padres es un pilar fundamental, aun en sus debilidades. 2. Las decisiones juveniles tienen un eco transgeneracional. 3. El respeto y la discreción protegen la dignidad y atraen bendición divina."
                 },
                 scores: [7, 8, 9, 8, 8]
             },
             ismael: {
                 name: "Ismael",
                 icon: "🏹",
-                title: "La Providencia en el Desierto",
-                color: "bg-amber-100",
-                textColor: "text-amber-800",
+                title: "Providencia en la Soledad del Desierto",
+                theme: "theme-ismael",
+                colorHex: "#F59E0B",
                 tabs: {
-                    historia: "Ismael fue el hijo de Abraham y Agar, la sierva de Sara. Nació de una solución humana a la esterilidad de Sara. Creció en un ambiente de tensión y fue expulsado junto a su madre al desierto tras el nacimiento de Isaac.",
-                    desafio: "Enfrentó el rechazo, el abandono y la perspectiva de la muerte en el desierto. Su adversidad fue nacer en una situación de conflicto familiar y ser visto como un obstáculo para la promesa divina dada a Isaac.",
-                    respuesta: "Aunque la fe de Ismael no se detalla, la Biblia dice que 'Dios oyó al niño sollozar'. La superación vino por una intervención divina directa. Dios proveyó agua, lo protegió y cumplió su promesa de hacer de él una gran nación. Ismael se adaptó, creció y se convirtió en un experto arquero.",
-                    lecciones: "1. Dios cuida de los marginados y escucha el clamor de los afligidos. 2. Se puede prosperar a pesar de un comienzo difícil. 3. La resiliencia y la adaptación son claves para sobrevivir y 'salir adelante' con la ayuda de Dios."
+                    historia: "Hijo de Abraham y Agar, sierva de Sara, Ismael nació de la impaciencia humana. Su vida estuvo marcada por tensiones familiares y, finalmente, la expulsión al desierto junto a su madre tras el nacimiento de Isaac, el hijo de la promesa.",
+                    desafio: "Ismael enfrentó el rechazo, el abandono y la amenaza de muerte en el desierto. Su adversidad radicó en ser percibido como un obstáculo para el plan divino centrado en Isaac.",
+                    respuesta: "Aunque su fe personal no se detalla, el clamor de Ismael fue oído por Dios. La intervención divina proveyó sustento y una promesa de grandeza. Ismael creció bajo el cuidado de Dios, adaptándose y convirtiéndose en un hábil arquero.",
+                    lecciones: "1. Dios escucha y cuida a los marginados y afligidos. 2. Es posible florecer a pesar de comienzos difíciles y rechazos. 3. La resiliencia y la adaptación, bajo la guía divina, son claves para la supervivencia y el propósito."
                 },
                 scores: [6, 9, 7, 7, 6]
             },
             isaac: {
                 name: "Isaac",
                 icon: "⛰️",
-                title: "La Prueba Suprema de la Fe",
-                color: "bg-emerald-100",
-                textColor: "text-emerald-800",
+                title: "La Fe Probada en el Altar del Sacrificio",
+                theme: "theme-isaac",
+                colorHex: "#10B981",
                 tabs: {
-                    historia: "Isaac fue el hijo milagroso de la promesa, nacido de Abraham y Sara en su vejez. Su vida estuvo centrada en el pacto de Dios. La experiencia más definitoria de su juventud fue cuando Dios le pidió a Abraham que lo ofreciera en sacrificio.",
-                    desafio: "La adversidad fue incomprensible: ser llevado por su propio padre para ser sacrificado. Enfrentó la prueba máxima de la fe, no solo para Abraham, sino también para él, al ser la víctima dispuesta en el altar.",
-                    respuesta: "La narrativa no registra resistencia por parte de Isaac. Su sumisión y confianza en su padre (y por extensión, en Dios) es su respuesta. La superación fue una espectacular intervención divina: Dios proveyó un carnero como sustituto. Esta prueba confirmó su lugar en el plan de Dios.",
-                    lecciones: "1. La fe puede ser probada hasta límites inimaginables. 2. La obediencia y la confianza en Dios son cruciales, aun sin entender el porqué. 3. Dios es un Dios de provisión (Jehová Jireh) que interviene en los momentos más críticos."
+                    historia: "Isaac, el hijo milagroso de Abraham y Sara, encarnó la promesa divina. Su juventud fue marcada por la prueba suprema en el Monte Moria, donde Abraham fue instruido a ofrecerlo en sacrificio, un evento que definiría la fe de generaciones.",
+                    desafio: "La adversidad de Isaac fue la incomprensible perspectiva de ser sacrificado por su propio padre. Fue una prueba extrema de fe, no solo para Abraham, sino también para Isaac como víctima dispuesta.",
+                    respuesta: "La sumisión de Isaac, su confianza en su padre y, por extensión, en Dios, es su silenciosa pero poderosa respuesta. La superación llegó a través de la intervención divina, que proveyó un sustituto, confirmando su lugar en el linaje de la promesa.",
+                    lecciones: "1. La fe puede ser sometida a pruebas que desafían toda comprensión. 2. La obediencia y la confianza en Dios son vitales, aun sin entender plenamente sus designios. 3. Dios es un proveedor fiel (Jehová Jireh) que interviene en los momentos más críticos."
                 },
                 scores: [9, 8, 10, 9, 10]
             }
         };
 
         const characterGrid = document.getElementById('character-grid');
-        const detailsContainer = document.getElementById('character-details-container');
-        const detailsContent = document.getElementById('character-details');
+        const detailsDisplaySection = document.getElementById('character-details-section');
         let activeCharacterKey = null;
         let radarChartInstance = null;
 
-        function displayCharacter(charKey) {
+        function displayCharacterDetails(charKey) {
             const character = characterData[charKey];
             if (!character) return;
 
+            // Update active card styling
             if (activeCharacterKey) {
-                const previousButton = document.querySelector(`.nav-button[data-char='${activeCharacterKey}']`);
-                if (previousButton) previousButton.classList.remove('active-char');
+                document.querySelector(`.character-card[data-char='${activeCharacterKey}']`)?.classList.remove('active-card');
             }
-            const currentButton = document.querySelector(`.nav-button[data-char='${charKey}']`);
-            if (currentButton) currentButton.classList.add('active-char');
+            const currentCard = document.querySelector(`.character-card[data-char='${charKey}']`);
+            currentCard?.classList.add('active-card');
+            currentCard?.style.setProperty('--active-color', character.colorHex);
             activeCharacterKey = charKey;
 
-            let content = `
-                <div class="text-center mb-8 content-fade-in">
-                    <span class="text-6xl md:text-7xl">${character.icon}</span>
-                    <h3 class="text-4xl font-bold ${character.textColor} mt-3">${character.name}</h3>
-                    <p class="text-stone-600 text-lg">${character.title}</p>
+            // Apply theme to details section
+            detailsDisplaySection.className = `details-section content-fade-in ${character.theme}`;
+            detailsDisplaySection.style.backgroundColor = `var(--bg-color)`;
+
+
+            let detailsHTML = `
+                <div class="text-center mb-8">
+                    <span class="character-icon" style="color: ${character.colorHex};">${character.icon}</span>
+                    <h3 class="section-title text-4xl font-bold" style="color: ${character.colorHex};">${character.name}</h3>
+                    <p class="text-stone-600 text-lg mt-1">${character.title}</p>
                 </div>
-                <div class="flex justify-center border-b border-stone-200 mb-6">
-                    <button class="tab-button active" data-tab="historia">La Historia</button>
-                    <button class="tab-button" data-tab="desafio">El Desafío</button>
-                    <button class="tab-button" data-tab="respuesta">La Respuesta</button>
-                    <button class="tab-button" data-tab="lecciones">Lecciones</button>
+                <div class="flex justify-center border-b border-stone-300 mb-6">
+                    <button class="tab-button active" data-tab="historia" style="--active-color: ${character.colorHex};">Historia</button>
+                    <button class="tab-button" data-tab="desafio" style="--active-color: ${character.colorHex};">Desafío</button>
+                    <button class="tab-button" data-tab="respuesta" style="--active-color: ${character.colorHex};">Respuesta</button>
+                    <button class="tab-button" data-tab="lecciones" style="--active-color: ${character.colorHex};">Lecciones</button>
                 </div>
-                <div id="tab-content" class="text-stone-700 leading-relaxed text-base md:text-lg min-h-[200px]">
+                <div id="tab-content-area" class="text-stone-700 leading-relaxed text-base md:text-lg min-h-[150px] md:min-h-[200px]">
                     <p class="content-fade-in">${character.tabs.historia}</p>
                 </div>
             `;
-            detailsContent.innerHTML = content;
-            detailsContainer.classList.remove('hidden');
-             detailsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            detailsDisplaySection.innerHTML = detailsHTML;
+            detailsDisplaySection.classList.remove('hidden');
+            
+            // Scroll to details, but not too aggressively
+            setTimeout(() => {
+                 detailsDisplaySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
 
 
             document.querySelectorAll('.tab-button').forEach(button => {
@@ -206,23 +260,23 @@
                     document.querySelector('.tab-button.active').classList.remove('active');
                     e.target.classList.add('active');
                     const tabKey = e.target.dataset.tab;
-                    const tabContentEl = document.getElementById('tab-content');
-                    tabContentEl.innerHTML = `<p class="content-fade-in">${character.tabs[tabKey]}</p>`;
+                    document.getElementById('tab-content-area').innerHTML = `<p class="content-fade-in">${character.tabs[tabKey]}</p>`;
                 };
             });
         }
 
         Object.keys(characterData).forEach(key => {
             const char = characterData[key];
-            const button = document.createElement('button');
-            button.className = `nav-button p-6 rounded-xl shadow-md focus:outline-none ${char.color}`;
-            button.dataset.char = key;
-            button.innerHTML = `
-                <span class="text-5xl">${char.icon}</span>
-                <span class="block font-semibold mt-3 text-lg ${char.textColor}">${char.name}</span>
+            const card = document.createElement('div');
+            card.className = `character-card ${char.theme}`;
+            card.dataset.char = key;
+            card.innerHTML = `
+                <span class="character-icon" style="color: ${char.colorHex};">${char.icon}</span>
+                <h3 class="section-title text-2xl font-bold" style="color: ${char.colorHex};">${char.name}</h3>
+                <p class="text-stone-500 text-sm mt-1">${char.title}</p>
             `;
-            button.onclick = () => displayCharacter(key);
-            characterGrid.appendChild(button);
+            card.onclick = () => displayCharacterDetails(key);
+            characterGrid.appendChild(card);
         });
 
         function createRadarChart() {
@@ -234,28 +288,20 @@
                 type: 'radar',
                 data: {
                     labels: ['Fe', 'Resiliencia', 'Impacto', 'Responsabilidad', 'Obediencia'],
-                    datasets: Object.keys(characterData).map((key, index) => {
+                    datasets: Object.keys(characterData).map((key) => {
                         const char = characterData[key];
-                        const baseColors = [
-                            { bg: 'rgba(239, 68, 68, 0.3)', border: 'rgba(220, 38, 38, 1)' }, // red
-                            { bg: 'rgba(59, 130, 246, 0.3)', border: 'rgba(37, 99, 235, 1)' }, // blue
-                            { bg: 'rgba(99, 102, 241, 0.3)', border: 'rgba(79, 70, 229, 1)' }, // indigo
-                            { bg: 'rgba(245, 158, 11, 0.3)', border: 'rgba(217, 119, 6, 1)' }, // amber
-                            { bg: 'rgba(16, 185, 129, 0.3)', border: 'rgba(5, 150, 105, 1)' }  // emerald
-                        ];
-                        const colorSet = baseColors[index % baseColors.length];
                         return {
                             label: char.name,
                             data: char.scores,
-                            backgroundColor: colorSet.bg,
-                            borderColor: colorSet.border,
+                            backgroundColor: `${char.colorHex}4D`, // Hex with alpha
+                            borderColor: char.colorHex,
                             borderWidth: 2.5,
-                            pointBackgroundColor: colorSet.border,
+                            pointBackgroundColor: char.colorHex,
                             pointBorderColor: '#fff',
                             pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: colorSet.border,
-                            pointRadius: 4,
-                            pointHoverRadius: 7
+                            pointHoverBorderColor: char.colorHex,
+                            pointRadius: 5,
+                            pointHoverRadius: 8
                         }
                     })
                 },
@@ -264,19 +310,19 @@
                     responsive: true,
                     scales: {
                         r: {
-                            angleLines: { color: 'rgba(120, 113, 108, 0.2)' }, // stone-500 with alpha
-                            grid: { color: 'rgba(120, 113, 108, 0.2)' }, // stone-500 with alpha
+                            angleLines: { color: 'rgba(120, 113, 108, 0.3)' },
+                            grid: { color: 'rgba(120, 113, 108, 0.3)' },
                             pointLabels: {
-                                font: { size: 13, weight: '600', family: 'Inter' },
+                                font: { size: 13, weight: '600', family: 'Roboto Slab' },
                                 color: '#57534E' // stone-600
                             },
                             ticks: {
                                 color: '#78716C', // stone-500
-                                backdropColor: 'rgba(255, 251, 235, 0.6)', // amber-50 with alpha
+                                backdropColor: 'rgba(255, 255, 255, 0.75)',
                                 stepSize: 2,
                                 beginAtZero: true,
                                 max: 10,
-                                font: { size: 11 }
+                                font: { size: 11, family: 'Open Sans' }
                             }
                         }
                     },
@@ -285,25 +331,24 @@
                             position: 'bottom',
                             labels: { 
                                 color: '#44403C', // stone-700
-                                font: { size: 12, family: 'Inter' },
-                                padding: 20
+                                font: { size: 12, family: 'Open Sans' },
+                                padding: 25,
+                                usePointStyle: true,
+                                boxWidth: 8
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0,0,0,0.75)',
-                            titleFont: { size: 14, weight: 'bold', family: 'Lora' },
-                            bodyFont: { size: 12, family: 'Inter' },
-                            padding: 10,
-                            cornerRadius: 4,
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleFont: { size: 14, weight: 'bold', family: 'Roboto Slab' },
+                            bodyFont: { size: 12, family: 'Open Sans' },
+                            padding: 12,
+                            cornerRadius: 6,
+                            usePointStyle: true,
                             callbacks: {
                                 label: function(context) {
                                     let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.r !== null) {
-                                        label += context.parsed.r
-                                    }
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.r !== null) { label += context.parsed.r; }
                                     return label;
                                 }
                             }
@@ -317,4 +362,3 @@
     </script>
 </body>
 </html>
-
